@@ -1,0 +1,238 @@
+#!/bin/bash
+
+usage(){
+        echo -e "Usage: $0 cmd id [type]\n \t cmd: \t (create|con|mon|chk|shutdown|reboot|reset|poff|list)\n \t id: \t vxxx \n \t type: \t (lb|lv|db)"
+	echo "mem=(512M|1G|2G|4G|8G|16G|32G)"
+	echo "smp=1...256"
+}
+
+case "$2" in
+        v[0-9][0-9][0-9]|"")
+        id=$2 ;
+        ;;
+
+        *)
+        usage; exit 1
+        ;;
+esac
+
+case "$mem" in
+        "512m"|"512M")
+        mem=512 ;
+        ;;
+
+        ""|"1g"|"1G")
+        mem=1024 ;
+        ;;
+
+        "2g"|"2G")
+        mem=2047 ;
+        ;;
+
+        "4g"|"4G")
+        mem=4096 ;
+        ;;
+
+        "8g"|"8G")
+        mem=8192 ;
+        ;;
+
+        "16g"|"16G")
+        mem=16384 ;
+        ;;
+
+        "32g"|"32G")
+        mem=32768 ;
+        ;;
+
+        *)
+        usage; exit 1
+        ;;
+esac
+
+case "$smp" in
+        "")
+        smp=2 ;
+        ;;
+esac
+
+KVM=/kvm
+KVM_BIN=$KVM/qemu/qemu-2.2.0/bin
+
+kernel=$KVM/boot/vmlinuz-4.1.3-64kvmg01
+initrd=$KVM/boot/initrd-kvm.img
+qemu=$KVM_BIN/qemu-system-x86_64
+
+ifup0=$KVM/etc/qemu-ifup
+ifup1=$KVM/etc/qemu-ifup
+
+img=$KVM/data/$id.img
+template=$KVM/data/kvm.img.template64
+
+con=$KVM/console/${id}.sock
+mon=$KVM/monitor/${id}.sock
+lcon=$KVM/console/.${id}.lock
+lmon=$KVM/monitor/.${id}.lock
+poff=""
+
+kvm_list(){
+        echo -e "id \tcon \tmon \timg"
+
+	list=$(ls -la  /proc/*/fd/* 2>/dev/null |grep "$KVM/data" |sed -e 's/.*data\//\ /g' |tr -d "\n")
+
+        for img in $KVM/data/*.img ; do
+                id=${img##*/}
+                id=${id%.img}
+                echo -n $id
+
+                for dir in console monitor ; do
+                        status=`grep $id /proc/net/unix | awk '{print $6"::"$8}'|grep $dir`
+                        echo -n $status |sed -e 's/.*03::.*/\tx/g' -e 's/.*01::.*/\to/g'
+                        if [ "$status" == "" ]; then
+                                echo -ne "\t-"
+                        fi
+                done
+
+
+		if id2=$(readlink $img) ; then
+			true	
+		else
+			id2=${img##*/}
+		fi
+
+		if echo "$list" | grep "$id2" > /dev/null ;  then 
+                        echo -e "\t u"
+                else
+                        echo -e "\t -"
+                fi
+
+        done
+}
+
+kvm_connect(){
+        if [ "$id" == "" ] ; then usage ; exit 1 ; fi
+        sock=$1
+        lock=$2
+        shift; shift
+        tty_setting=`stty -g`
+        stty intr ^]
+        if [ "$1" == "" ] ; then
+                socat -L$lock -,icanon=0,echo=0 unix-connect:$sock
+        else
+                echo $@ | socat -L$lock  - unix-connect:$sock
+        fi
+        stty $tty_setting
+	echo
+}
+
+
+kvm_create(){
+        if [ "$id" == "" ] ; then usage ; exit 1 ; fi
+
+id=$1
+id_num=`echo $id |sed -e 's/^v//g'`
+mac0=52:54:00:11:`printf "%.4x\n" $id_num|sed -e 's/\(..\)\(..\)/\1:\2/g'`
+mac1=52:54:00:12:`printf "%.4x\n" $id_num|sed -e 's/\(..\)\(..\)/\1:\2/g'`
+
+
+if lsof $img > /dev/null 2>&1 ; then
+        echo $img is in use
+        exit 1
+elif lsof $con > /dev/null 2>&1 ; then
+        echo $con is in use
+        exit 1
+elif lsof $mon > /dev/null 2>&1 ; then
+        echo $mon is in use
+        exit 1
+else
+        echo booting $id ....
+fi
+
+if [ ! -e $img ]; then
+        cp $template $img
+fi
+
+
+ln -s $qemu /kvm-$id
+
+/kvm-$id \
+-drive file=$img,if=virtio \
+-cpu host \
+-m $mem \
+-smp $smp \
+-kernel $kernel -initrd $initrd \
+-append "console=ttyS0,19200n8 ID=$id IDNUM=${id:1} HOST=$(hostname) root=/dev/vda" \
+-rtc base=localtime \
+--enable-kvm \
+-net nic,vlan=0,macaddr=$mac0,model=virtio \
+-net tap,vlan=0,script=$ifup0,ifname=${id}_0 \
+-net nic,vlan=1,macaddr=$mac1,model=virtio \
+-net tap,vlan=1,script=$ifup1,ifname=${id}_1 \
+-serial unix:${con},server,nowait \
+-monitor unix:${mon},server,nowait \
+-nographic -daemonize \
+-parallel none -virtioconsole none
+
+rm /kvm-$id
+
+}
+
+
+
+case "$1" in
+        create)
+        kvm_create $id
+        exit 0
+        ;;
+
+        con)
+        kvm_connect $con $lcon
+        exit 0
+        ;;
+
+        mon)
+        kvm_connect $mon $lmon
+        exit 0
+        ;;
+
+        shutdown)
+        poff="system_powerdown"
+        kvm_connect $mon $lmon $poff
+        exit 0
+        ;;
+
+        reboot)
+        poff="sendkey ctrl-alt-delete"
+        kvm_connect $mon $lmon $poff
+        exit 0
+        ;;
+
+        reset)
+        poff="system_reset"
+        kvm_connect $mon $lmon $poff
+        exit 0
+        ;;
+
+        poff)
+        poff="q"
+        kvm_connect $mon $lmon $poff
+        exit 0
+        ;;
+
+        chk)
+        chk="info status"
+        kvm_connect $mon $lmon $chk
+        exit 0
+        ;;
+
+        list)
+        kvm_list
+        exit 0
+        ;;
+
+
+        *)
+        usage; exit 1
+        ;;
+esac
+
