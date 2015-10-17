@@ -4,6 +4,9 @@ if [ "$root" == "" ]; then
 	root=/dev/vda
 fi
 
+mount -t proc none /proc
+mount -t devtmpfs none /dev
+
 echo "Mounting $root on /sysroot"
 mount $root /sysroot
 
@@ -50,6 +53,12 @@ fi
 if [ "$init" == "" ]; then
 	init=/sbin/init
 fi
+
+umount /proc
+umount /dev
+mount -t proc none /sysroot/proc
+mount -t devtmpfs none /sysroot/dev
+
 exec switch_root -c /dev/console /sysroot $init
 
 

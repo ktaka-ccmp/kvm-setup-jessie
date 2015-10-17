@@ -75,11 +75,13 @@ initrd_dir: ${SRC_DIR}/${BUSYBOX}/_install
 	mkdir -p ${SRC_DIR}/initrd_dir
 	rsync -a --delete ${SRC_DIR}/${BUSYBOX}/_install/ ${SRC_DIR}/initrd_dir/
 	mkdir -p ${SRC_DIR}/initrd_dir/sysroot
+	mkdir -p ${SRC_DIR}/initrd_dir/proc
 	cp files/init ${SRC_DIR}/initrd_dir/
 
 kernel: ${SRC_DIR}/${KERNEL}/.config ~/bin/installkernel
 	ARCH=x86_64 nice -n 10 make -C ${SRC_DIR}/${KERNEL} -j20
 	ARCH=x86_64 make -C ${SRC_DIR}/${KERNEL} install INSTALL_PATH=${TOP_DIR}/boot/
+	(cd ${TOP_DIR}/boot/ ; ln -sf $(subst linux,vmlinuz,${KERNEL})${KVER_MINOR} vmlinuz )
 	(cp ${SRC_DIR}/${KERNEL}/.config files/dot.config ; touch ${SRC_DIR}/${KERNEL}/.config)
 
 ${SRC_DIR}/${KERNEL}/.config: files/dot.config
@@ -126,6 +128,10 @@ kvm: files/kvm
 	cp files/kbr0 /etc/network/interfaces.d/ ; \
 	cp files/masquerade.sh /etc/network/ ; \
 	ifup kbr0 ; fi
+	if [ ! -f /etc/sysctl.d/00-forward.conf ]; then \
+	cp files/00-forward.conf /etc/sysctl.d/00-forward.conf ; \
+	sysctl -p /etc/sysctl.d/00-forward.conf ; \
+	fi
 	cp files/qemu-ifup ${TOP_DIR}/etc/
 
 template: 
@@ -139,4 +145,5 @@ template:
 	apt-get -o RootDir=${TOP_DIR}/mnt/tmp/ clean ;\
 	umount ${TOP_DIR}/mnt/tmp ;\
 	fi
+	cp ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/data/test.img
 
