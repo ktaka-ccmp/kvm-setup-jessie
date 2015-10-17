@@ -1,19 +1,21 @@
-KVER=4.2.3
-KVER_MINOR=-64kvmg01
 
-QEMU=qemu-2.4.0.1.tar.bz2
+TOP_DIR=/kvm_test
+SRC_DIR=${TOP_DIR}/SRC/
+
+KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v4.x/linux-4.2.3.tar.xz
+KERNEL_FILE=$(notdir ${KERNEL_URI})
+KERNEL=$(KERNEL_FILE:.tar.xz=)
+KVER_MINOR=-64kvmg01
 
 BUSYBOX_URI=http://busybox.net/downloads/busybox-1.23.2.tar.bz2
 BUSYBOX_FILE=$(notdir ${BUSYBOX_URI})
 BUSYBOX=$(BUSYBOX_FILE:.tar.bz2=)
 
-TOP_DIR=/kvm
-SRC_DIR=${TOP_DIR}/SRC/
-KERN_DIR=${SRC_DIR}/linux-${KVER}/
-QEMU_DIR=${SRC_DIR}/$(QEMU:.tar.bz2=)
+QEMU_URI=http://wiki.qemu-project.org/download/qemu-2.4.0.1.tar.bz2
+QEMU_FILE=$(notdir ${QEMU_URI})
+QEMU=$(QEMU_FILE:.tar.bz2=)
 
 TEMPLATE=template.jessie64
-
 
 default: 
 	@echo "Usage: make target "
@@ -60,32 +62,32 @@ prep:
 	build-essential \
 	
 
-#.PHONY: initrd
-initrd: ${SRC_DIR}/initrd_dir
-	(cd $< ;find . | cpio -o -H newc | gzip -9 -n > ${TOP_DIR}/boot/initrd-kvm.img)
+.PHONY: initrd
+initrd: initrd_dir
+	(cd ${SRC_DIR}/initrd_dir ;find . | cpio -o -H newc | gzip -9 -n > ${TOP_DIR}/boot/initrd-kvm.img)
 
-.PHONY: ${SRC_DIR}/initrd_dir
-${SRC_DIR}/initrd_dir: 
+.PHONY: initrd_dir
+initrd_dir: ${SRC_DIR}/${BUSYBOX}/_install 
 	mkdir -p ${SRC_DIR}/initrd_dir
 	rsync -a --delete ${SRC_DIR}/${BUSYBOX}/_install/ ${SRC_DIR}/initrd_dir/
 	mkdir -p ${SRC_DIR}/initrd_dir/sysroot
 	cp files/init ${SRC_DIR}/initrd_dir/
 
-kernel: ${KERN_DIR}/.config ~/bin/installkernel
-	ARCH=x86_64 nice -n 10 make -C ${KERN_DIR} -j20
-	ARCH=x86_64 make -C ${KERN_DIR} install INSTALL_PATH=${TOP_DIR}/boot/
-	(cp ${KERN_DIR}/.config files/dot.config ; touch ${KERN_DIR}/.config)
+kernel: ${SRC_DIR}/${KERNEL}/.config ~/bin/installkernel
+	ARCH=x86_64 nice -n 10 make -C ${SRC_DIR}/${KERNEL} -j20
+	ARCH=x86_64 make -C ${SRC_DIR}/${KERNEL} install INSTALL_PATH=${TOP_DIR}/boot/
+	(cp ${SRC_DIR}/${KERNEL}/.config files/dot.config ; touch ${SRC_DIR}/${KERNEL}/.config)
 
-${KERN_DIR}/.config: files/dot.config
-	if [ ! -d ${KERN_DIR} ]; then \
-	(wget -c http://www.kernel.org/pub/linux/kernel/v4.x/linux-${KVER}.tar.xz; \
-	tar xf linux-${KVER}.tar.xz -C ${SRC_DIR}; rm linux-${KVER}.tar.xz) ; fi
-	sed -e 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"${KVER_MINOR}\"/g' files/dot.config > ${KERN_DIR}/.config
-	ARCH=x86_64 make -C ${KERN_DIR} menuconfig
-	(cd ${KERN_DIR}/; cp -v  .config .config.tmp ;\
+${SRC_DIR}/${KERNEL}/.config: files/dot.config
+	if [ ! -d ${SRC_DIR}/${KERNEL} ]; then \
+	(wget -c ${KERNEL_URI} ;\
+	tar xf ${KERNEL_FILE} -C ${SRC_DIR}; rm ${KERNEL_FILE}) ; fi
+	sed -e 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"${KVER_MINOR}\"/g' files/dot.config > ${SRC_DIR}/${KERNEL}/.config
+	ARCH=x86_64 make -C ${SRC_DIR}/${KERNEL} menuconfig
+	(cd ${SRC_DIR}/${KERNEL}/; cp -v  .config .config.tmp ;\
 	sed -e 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"${KVER_MINOR}\"/g' .config.tmp > .config ;\
 	rm .config.tmp )
-	(cp ${KERN_DIR}/.config files/dot.config ; touch ${KERN_DIR}/.config)
+	(cp ${SRC_DIR}/${KERNEL}/.config files/dot.config ; touch ${SRC_DIR}/${KERNEL}/.config)
 
 ~/bin/installkernel: /sbin/installkernel
 	mkdir -p ~/bin/
@@ -93,15 +95,18 @@ ${KERN_DIR}/.config: files/dot.config
 
 .PHONY: qemu
 qemu: 
-	if [ ! -d ${QEMU_DIR} ]; then \
-	(wget -c http://wiki.qemu-project.org/download/${QEMU} ; \
-	tar xf ${QEMU} -C ${SRC_DIR}; rm ${QEMU}) ; fi
-	(cd ${QEMU_DIR}/; \
-	./configure --prefix=${TOP_DIR}/qemu/$(QEMU:.tar.bz2=)/ --enable-kvm ; \
+	if [ ! -d ${SRC_DIR}/${QEMU} ]; then \
+	(wget -c ${QEMU_URI} ; \
+	tar xf ${QEMU_FILE} -C ${SRC_DIR}; rm ${QEMU_FILE}) ; fi
+	(cd ${SRC_DIR}/${QEMU}; \
+	./configure --prefix=${TOP_DIR}/qemu/${QEMU}/ --enable-kvm ; \
 	time make -j 20 install ;\
 	)
 
-busybox:
+.PHONY: busybox
+busybox: ${SRC_DIR}/${BUSYBOX}/_install
+
+${SRC_DIR}/${BUSYBOX}/_install: 
 	if [ ! -d ${SRC_DIR}/${BUSYBOX} ]; then \
 	wget -c ${BUSYBOX_URI} ; \
 	tar xf ${BUSYBOX_FILE} -C ${SRC_DIR}; rm ${BUSYBOX_FILE} ; fi
