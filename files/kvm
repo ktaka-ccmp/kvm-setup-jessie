@@ -67,7 +67,7 @@ ifup0=$KVM/etc/qemu-ifup
 ifup1=$KVM/etc/qemu-ifup
 
 img=$KVM/data/$id.img
-template=$KVM/data/kvm.img.template64
+template=$KVM/data/template.jessie64
 
 con=$KVM/console/${id}.sock
 mon=$KVM/monitor/${id}.sock
