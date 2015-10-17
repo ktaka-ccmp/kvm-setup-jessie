@@ -1,5 +1,5 @@
 
-TOP_DIR=/kvm_test
+TOP_DIR=/kvm
 SRC_DIR=${TOP_DIR}/SRC/
 
 KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v4.x/linux-4.2.3.tar.xz
@@ -42,7 +42,9 @@ prep:
 	mkdir -p ${TOP_DIR}/boot/	
 	mkdir -p ${TOP_DIR}/sbin/
 	mkdir -p ${TOP_DIR}/data
-	mkdir -p ${SRC_DIR}
+	mkdir -p ${TOP_DIR}/console
+	mkdir -p ${TOP_DIR}/monitor
+	mkdir -p ${TOP_DIR}/etc
 	aptitude install -y debootstrap \
 	ca-certificates \
 	gcc \
@@ -60,6 +62,8 @@ prep:
 	libglib2.0-dev \
 	autoconf \
 	build-essential \
+	socat \
+	bridge-utils \
 	
 
 .PHONY: initrd
@@ -118,6 +122,11 @@ ${SRC_DIR}/${BUSYBOX}/_install:
 
 kvm: files/kvm
 	cp files/kvm ${TOP_DIR}/sbin/
+	if [ ! -f /etc/network/interfaces.d/kbr0 ]; then \
+	cp files/kbr0 /etc/network/interfaces.d/ ; \
+	cp files/masquerade.sh /etc/network/ ; \
+	ifup kbr0 ; fi
+	cp files/qemu-ifup ${TOP_DIR}/etc/
 
 template: 
 	if [ ! -f ${TOP_DIR}/data/${TEMPLATE} ]; then \

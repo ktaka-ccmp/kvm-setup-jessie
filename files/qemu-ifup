@@ -1,0 +1,5 @@
+#!/bin/sh
+
+/sbin/ip link set dev $1 up promisc off
+/sbin/brctl addif kbr0 $1
+
