@@ -25,7 +25,9 @@ default:
 	@echo "\t kernel		: Compile kernel"
 	@echo "\t initrd		: Create initrd image"
 	@echo "\t qemu		: compile qemu"
-	@echo "\t kvm		: copy kvm"
+	@echo "\t files		: copy kvm files"
+	@echo "\t template	: create template image"
+	@echo
 
 .PHONY: default
 
@@ -34,7 +36,7 @@ all:
 	make initrd
 	make kernel
 	make qemu
-	make kvm
+	make files
 
 .PHONY: all kernel  
 
@@ -122,7 +124,8 @@ ${SRC_DIR}/${BUSYBOX}/_install:
 	time make -j 20 install )
 	cp ${SRC_DIR}/${BUSYBOX}/.config files/dot.config.busybox 
 
-kvm: files/kvm
+.PHONY: files
+files:
 	cp files/kvm ${TOP_DIR}/sbin/
 	if [ ! -f /etc/network/interfaces.d/kbr0 ]; then \
 	cp files/kbr0 /etc/network/interfaces.d/ ; \
