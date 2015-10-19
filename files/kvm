@@ -153,7 +153,7 @@ fi
 ln -s $qemu /kvm-$id
 
 /kvm-$id \
--drive file=$img,if=virtio \
+-drive file=$img,if=virtio,format=raw \
 -cpu host \
 -m $mem \
 -smp $smp \

@@ -67,6 +67,7 @@ prep:
 	build-essential \
 	socat \
 	bridge-utils \
+	lsof \
 	
 
 .PHONY: initrd
