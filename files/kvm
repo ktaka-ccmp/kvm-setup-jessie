@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage(){
-        echo -e "Usage: $0 cmd id [type]\n \t cmd: \t (create|con|mon|chk|shutdown|reboot|reset|poff|list)\n \t id: \t vxxx \n \t type: \t (lb|lv|db)"
+        echo -e "Usage: $0 cmd id \n \t cmd: \t (create|con|mon|chk|shutdown|reboot|reset|poff|list)\n \t id: \t vxxx"
 	echo "mem=(512M|1G|2G|4G|8G|16G|32G)"
 	echo "smp=1...256"
 }
@@ -57,11 +57,10 @@ case "$smp" in
 esac
 
 KVM=/kvm
-KVM_BIN=$KVM/qemu/qemu-2.4.0.1/bin
-
+qemu_bin=$KVM/qemu/qemu-2.4.0.1/bin
+qemu=$qemu_bin/qemu-system-x86_64
 kernel=$KVM/boot/vmlinuz-4.2.3-64kvmg01
 initrd=$KVM/boot/initrd-kvm.img
-qemu=$KVM_BIN/qemu-system-x86_64
 
 ifup0=$KVM/etc/qemu-ifup
 ifup1=$KVM/etc/qemu-ifup
@@ -125,7 +124,6 @@ kvm_connect(){
 	echo
 }
 
-
 kvm_create(){
         if [ "$id" == "" ] ; then usage ; exit 1 ; fi
 
@@ -152,7 +150,6 @@ if [ ! -e $img ]; then
         cp $template $img
 fi
 
-
 ln -s $qemu /kvm-$id
 
 /kvm-$id \
@@ -174,9 +171,7 @@ ln -s $qemu /kvm-$id
 -parallel none -virtioconsole none
 
 rm /kvm-$id
-
 }
-
 
 
 case "$1" in
