@@ -41,8 +41,9 @@ all:
 .PHONY: all kernel  
 
 prep:
-	mkdir -p ${TOP_DIR}/boot/	
-	mkdir -p ${TOP_DIR}/sbin/
+	mkdir -p ${TOP_DIR}/SRC
+	mkdir -p ${TOP_DIR}/boot	
+	mkdir -p ${TOP_DIR}/sbin
 	mkdir -p ${TOP_DIR}/data
 	mkdir -p ${TOP_DIR}/console
 	mkdir -p ${TOP_DIR}/monitor
