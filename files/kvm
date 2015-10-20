@@ -128,7 +128,7 @@ kvm_create(){
         if [ "$id" == "" ] ; then usage ; exit 1 ; fi
 
 id=$1
-id_num=`echo $id |sed -e 's/^v//g'`
+id_num=`echo $id |sed -e 's/^v0*//g'`
 mac0=52:54:00:11:`printf "%.4x\n" $id_num|sed -e 's/\(..\)\(..\)/\1:\2/g'`
 mac1=52:54:00:12:`printf "%.4x\n" $id_num|sed -e 's/\(..\)\(..\)/\1:\2/g'`
 
