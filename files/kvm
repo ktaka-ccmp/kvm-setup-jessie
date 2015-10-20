@@ -158,7 +158,7 @@ ln -s $qemu /kvm-$id
 -m $mem \
 -smp $smp \
 -kernel $kernel -initrd $initrd \
--append "console=ttyS0,19200n8 ID=$id IDNUM=${id:1} HOST=$(hostname) root=/dev/vda" \
+-append "console=ttyS0,19200n8 ID=$id IDNUM=$id_num HOST=$(hostname) root=/dev/vda" \
 -rtc base=localtime \
 --enable-kvm \
 -net nic,vlan=0,macaddr=$mac0,model=virtio \
