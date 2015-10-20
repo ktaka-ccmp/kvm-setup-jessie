@@ -152,3 +152,13 @@ template:
 	fi
 	cp ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/data/test.img
 
+template-modify:
+	if [ -f ${TOP_DIR}/data/${TEMPLATE} ]; then \
+	mount -o loop ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/mnt/tmp/ ; \
+	if [ -f /root/.ssh/authorized_keys ]; then \
+	mkdir -p ${TOP_DIR}/mnt/tmp/root/.ssh && chmod 700 ${TOP_DIR}/mnt/tmp/root/ && cp ~/.ssh/authorized_keys ${TOP_DIR}/mnt/tmp/root/.ssh/ ;\
+	fi ; \
+	umount ${TOP_DIR}/mnt/tmp ;\
+	fi
+	cp ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/data/test.img
+
