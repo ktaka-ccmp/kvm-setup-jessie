@@ -87,7 +87,7 @@ initrd_dir: ${SRC_DIR}/${BUSYBOX}/_install
 	mkdir -p ${SRC_DIR}/initrd_dir/proc
 	cp files/init ${SRC_DIR}/initrd_dir/
 
-kernel: ${SRC_DIR}/${KERNEL}/.config ~/bin/installkernel
+kernel: ${SRC_DIR}/${KERNEL}/.config installkernel
 	ARCH=x86_64 nice -n 10 make -C ${SRC_DIR}/${KERNEL} -j20
 	ARCH=x86_64 make -C ${SRC_DIR}/${KERNEL} install INSTALL_PATH=${TOP_DIR}/boot/
 	(cd ${TOP_DIR}/boot/ ; ln -sf $(subst linux,vmlinuz,${KERNEL})${KVER_MINOR} vmlinuz )
@@ -104,9 +104,11 @@ ${SRC_DIR}/${KERNEL}/.config: files/dot.config
 	rm .config.tmp )
 	(cp ${SRC_DIR}/${KERNEL}/.config files/dot.config ; touch ${SRC_DIR}/${KERNEL}/.config)
 
-~/bin/installkernel: /sbin/installkernel
+.PHONY: installkernel
+installkernel: 
 	mkdir -p ~/bin/
 	egrep -v "run-parts --verbose|/etc/kernel/postinst.d" /sbin/installkernel > ~/bin/installkernel
+	chmod +x ~/bin/installkernel
 
 .PHONY: qemu
 qemu: 
