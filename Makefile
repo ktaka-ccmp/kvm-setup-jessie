@@ -27,6 +27,7 @@ default:
 	@echo "\t qemu		: compile qemu"
 	@echo "\t files		: copy kvm files"
 	@echo "\t template	: create template image"
+	@echo "\t template-modify : copy authorized_keys to template image"
 	@echo
 
 .PHONY: default
@@ -37,6 +38,8 @@ all:
 	make kernel
 	make qemu
 	make files
+	make template
+	make template-modify
 
 .PHONY: all kernel  
 
@@ -109,7 +112,7 @@ qemu:
 	(wget -c ${QEMU_URI} ; \
 	tar xf ${QEMU_FILE} -C ${SRC_DIR}; rm ${QEMU_FILE}) ; fi
 	(cd ${SRC_DIR}/${QEMU}; \
-	./configure --prefix=${TOP_DIR}/qemu/${QEMU}/ --enable-kvm ; \
+	./configure --prefix=${TOP_DIR}/qemu/${QEMU}/ --enable-kvm --target-list=x86_64-softmmu ; \
 	time make -j 20 install ;\
 	)
 
@@ -145,7 +148,7 @@ template:
 	mkfs.ext4 ${TOP_DIR}/data/${TEMPLATE} ; \
 	mkdir -p ${TOP_DIR}/mnt/tmp ; \
 	mount -o loop ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/mnt/tmp/ ; \
-	debootstrap --include=openssh-server,openssh-client,rsync,pciutils,tcpdump,strace jessie ${TOP_DIR}/mnt/tmp/ http://apt.h.ccmp.jp:3142/ftp.jp.debian.org/debian ; \
+	debootstrap --include=openssh-server,openssh-client,rsync,pciutils,tcpdump,strace,libpam-systemd jessie ${TOP_DIR}/mnt/tmp/ http://apt.h.ccmp.jp:3142/ftp.jp.debian.org/debian ; \
 	echo "root:root" | chpasswd --root ${TOP_DIR}/mnt/tmp/ ; \
 	apt-get -o RootDir=${TOP_DIR}/mnt/tmp/ clean ;\
 	umount ${TOP_DIR}/mnt/tmp ;\
