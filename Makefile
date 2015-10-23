@@ -2,7 +2,7 @@
 TOP_DIR=/kvm
 SRC_DIR=${TOP_DIR}/SRC/
 
-KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v4.x/linux-4.2.3.tar.xz
+KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v4.x/linux-4.2.4.tar.xz
 KERNEL_FILE=$(notdir ${KERNEL_URI})
 KERNEL=$(KERNEL_FILE:.tar.xz=)
 KVER_MINOR=-64kvmg01
