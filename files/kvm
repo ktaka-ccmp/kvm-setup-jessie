@@ -59,7 +59,8 @@ esac
 KVM=/kvm
 qemu_bin=$KVM/qemu/qemu-2.4.0.1/bin
 qemu=$qemu_bin/qemu-system-x86_64
-kernel=$KVM/boot/vmlinuz-4.2.3-64kvmg01
+#kernel=$KVM/boot/vmlinuz-4.2.3-64kvmg01
+kernel=$KVM/boot/vmlinuz
 initrd=$KVM/boot/initrd-kvm.img
 
 ifup0=$KVM/etc/qemu-ifup
