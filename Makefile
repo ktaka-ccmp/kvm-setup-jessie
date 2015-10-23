@@ -28,6 +28,7 @@ default:
 	@echo "\t files		: copy kvm files"
 	@echo "\t template	: create template image"
 	@echo "\t template-modify : copy authorized_keys to template image"
+	@echo "\t hosts	: add hosts entry"
 	@echo
 
 .PHONY: default
@@ -40,6 +41,7 @@ all:
 	make files
 	make template
 	make template-modify
+	make hosts
 
 .PHONY: all kernel  
 
@@ -165,3 +167,5 @@ template-modify:
 	fi
 	cp ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/data/test.img
 
+hosts:
+	bash files/hosts_gen.sh
