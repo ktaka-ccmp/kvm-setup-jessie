@@ -55,12 +55,10 @@ prep:
 	mkdir -p ${TOP_DIR}/etc
 	aptitude install -y debootstrap \
 	ca-certificates \
-	gcc \
 	libncurses5-dev \
-	screen \
 	xz-utils \
 	bc \
-	ansible \
+	gcc \
 	git \
 	bzip2 \
 	g++ \
@@ -73,6 +71,7 @@ prep:
 	socat \
 	bridge-utils \
 	lsof \
+	time \
 	
 
 .PHONY: initrd
