@@ -151,7 +151,7 @@ template:
 	mkfs.ext4 ${TOP_DIR}/data/${TEMPLATE} ; \
 	mkdir -p ${TOP_DIR}/mnt/tmp ; \
 	mount -o loop ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/mnt/tmp/ ; \
-	debootstrap --include=openssh-server,openssh-client,rsync,pciutils,tcpdump,strace,libpam-systemd jessie ${TOP_DIR}/mnt/tmp/ http://apt.h.ccmp.jp:3142/ftp.jp.debian.org/debian ; \
+	debootstrap --include=openssh-server,openssh-client,rsync,pciutils,tcpdump,strace,libpam-systemd jessie ${TOP_DIR}/mnt/tmp/ http://ftp.jp.debian.org/debian ; \
 	echo "root:root" | chpasswd --root ${TOP_DIR}/mnt/tmp/ ; \
 	apt-get -o RootDir=${TOP_DIR}/mnt/tmp/ clean ;\
 	umount ${TOP_DIR}/mnt/tmp ;\
