@@ -145,6 +145,9 @@ files:
 	fi
 	cp files/qemu-ifup ${TOP_DIR}/etc/
 
+hosts:
+	bash files/hosts_gen.sh
+
 template: 
 	if [ ! -f ${TOP_DIR}/data/${TEMPLATE} ]; then \
 	dd if=/dev/zero of=${TOP_DIR}/data/${TEMPLATE} bs=1024 seek=9999999 count=1 ; \
@@ -163,10 +166,9 @@ template-modify:
 	mount -o loop ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/mnt/tmp/ ; \
 	if [ -f /root/.ssh/authorized_keys ]; then \
 	mkdir -p ${TOP_DIR}/mnt/tmp/root/.ssh && chmod 700 ${TOP_DIR}/mnt/tmp/root/ && cp ~/.ssh/authorized_keys ${TOP_DIR}/mnt/tmp/root/.ssh/ ;\
+	cp /etc/hosts ${TOP_DIR}/mnt/tmp/etc/ ;\
 	fi ; \
 	umount ${TOP_DIR}/mnt/tmp ;\
 	fi
 	cp ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/data/test.img
 
-hosts:
-	bash files/hosts_gen.sh
