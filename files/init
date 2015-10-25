@@ -25,6 +25,9 @@ iface eth0 inet static
         network 172.16.1.0
         broadcast       172.16.1.255
         gateway 172.16.1.254
+
+source-directory /etc/network/interfaces.d
+
 EOF
 
 elif [ -f /sysroot/etc/redhat-release ]; then
