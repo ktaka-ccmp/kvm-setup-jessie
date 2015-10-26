@@ -10,6 +10,11 @@ mount -t devtmpfs none /dev
 echo "Mounting $root on /sysroot"
 mount $root /sysroot
 
+mount -t 9p -o trans=virtio,ro kvmboot /sysroot/boot
+mkdir /sysroot/lib/modules
+mount -t tmpfs none /sysroot/lib/modules
+tar xvf /sysroot/boot/modules.tgz -C /sysroot/
+
 echo $ID > /sysroot/etc/hostname
 echo $HOST > /sysroot/etc/kvmhost
 

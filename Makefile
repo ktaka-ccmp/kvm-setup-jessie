@@ -5,6 +5,7 @@ SRC_DIR=${TOP_DIR}/SRC/
 KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v4.x/linux-4.2.4.tar.xz
 KERNEL_FILE=$(notdir ${KERNEL_URI})
 KERNEL=$(KERNEL_FILE:.tar.xz=)
+KVER=$(subst linux-,,${KERNEL})
 KVER_MINOR=-64kvmg01
 
 BUSYBOX_URI=http://busybox.net/downloads/busybox-1.23.2.tar.bz2
@@ -72,6 +73,8 @@ prep:
 	bridge-utils \
 	lsof \
 	time \
+	libattr1-dev \
+	libcap-dev \
 	
 
 .PHONY: initrd
@@ -91,6 +94,9 @@ kernel: ${SRC_DIR}/${KERNEL}/.config installkernel
 	ARCH=x86_64 make -C ${SRC_DIR}/${KERNEL} install INSTALL_PATH=${TOP_DIR}/boot/
 	(cd ${TOP_DIR}/boot/ ; ln -sf $(subst linux,vmlinuz,${KERNEL})${KVER_MINOR} vmlinuz )
 	(cp ${SRC_DIR}/${KERNEL}/.config files/dot.config ; touch ${SRC_DIR}/${KERNEL}/.config)
+	ARCH=x86_64 make -C ${SRC_DIR}/${KERNEL} modules_install INSTALL_MOD_PATH=${SRC_DIR}
+	LD_LIBRARY_PATH=${SRC_DIR} depmod -a -b ${SRC_DIR} ${KVER}${KVER_MINOR}
+	(cd ${SRC_DIR}; tar cf - lib/modules/${KVER}${KVER_MINOR}) | gzip > ${TOP_DIR}/boot/modules.tgz
 
 ${SRC_DIR}/${KERNEL}/.config: files/dot.config
 	if [ ! -d ${SRC_DIR}/${KERNEL} ]; then \
@@ -115,7 +121,7 @@ qemu:
 	(wget -c ${QEMU_URI} ; \
 	tar xf ${QEMU_FILE} -C ${SRC_DIR}; rm ${QEMU_FILE}) ; fi
 	(cd ${SRC_DIR}/${QEMU}; \
-	./configure --prefix=${TOP_DIR}/qemu/${QEMU}/ --enable-kvm --target-list=x86_64-softmmu ; \
+	./configure --prefix=${TOP_DIR}/qemu/${QEMU}/ --enable-kvm --enable-virtfs --target-list=x86_64-softmmu ; \
 	time make -j 20 install ;\
 	)
 
