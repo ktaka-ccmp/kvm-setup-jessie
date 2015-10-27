@@ -116,3 +116,50 @@ QEMU 2.4.0.1 monitor - type 'help' for more information
 root@jessie64:~# 
 ```
 
+### SHow running VMs.
+
+```
+root@jessie64:~# /kvm/sbin/kvm  list
+id      con     mon     img
+test    -       -        -
+v001    -       -        -
+v002    o       o        u
+```
+
+For v001, the console socket and the monitoring socket are not accesible(non existent) and the img is down(not used). Hence the VM is stopped.
+For v002, the console socket and the monitoring socket are accesible(existent and not connected) and the img is up.
+Hence the VM is running.
+
+### Destroy the VM.
+
+You can destroy VM by removing the image file after properly shutdown the VM.
+
+```
+root@jessie64:~# lsof /kvm/data/v001.img
+root@jessie64:~# rm  /kvm/data/v001.img
+```
+
+## Memory and CPU configuration.
+
+The default value for memory and the number of cpus are 1Gbyte and 2, respectly.
+One can override these by setting the "mem" and "smp" environment variable.
+
+```
+root@jessie64:~# /kvm/sbin/kvm create v001
+booting v001 ....
+root@jessie64:~# ssh v001 'egrep -i memto /proc/meminfo ;egrep -i "physical id" /proc/cpuinfo'
+MemTotal:        1022448 kB
+physical id     : 0
+physical id     : 1
+```
+
+```
+root@jessie64:~# mem=4g smp=4 /kvm/sbin/kvm create v001
+booting v001 ....
+root@jessie64:~# ssh v001 'egrep -i memto /proc/meminfo ;egrep -i "physical id" /proc/cpuinfo'
+MemTotal:        4048112 kB
+physical id     : 0
+physical id     : 1
+physical id     : 2
+physical id     : 3
+```
