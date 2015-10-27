@@ -1,8 +1,8 @@
 # kvm-setup-jessie
 
 ## What is this?
-This is setup tool for Debian jessie kvm guest VMs on a Debian jessie host.
-While there are libvirt compatible tools for debian, I prefere to run kvm guest VM using qemu comandline for simplicity.
+This is a setup tool for Debian jessie kvm guest VMs on a Debian jessie host.
+While there are libvirt compatible tools for debian, I prefere to run kvm a guest VM using qemu comandline for simplicity.
 I compile guest kernel, qemu, prepare initrd, debootstrap root file system, and run the qemu program.
 That's it. All you need to run a kvm VM is just to run the single qemu program with appropriate command line options. It's that simple.
 
@@ -66,7 +66,7 @@ permitted by applicable law.
 root@v001:~# 
 root@jessie64:~# 
 ```
-
+The default ID/pass for vm guest console is root/root. 
 The escape sequence for socket connection is "Ctrl+]". See /kvm/sbin/kvm .
 
 SSH:
@@ -81,5 +81,38 @@ Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
 permitted by applicable law.
 Last login: Wed Oct 28 03:00:32 2015
 root@v001:~# 
+```
+
+The "/root/.ssh/authorized_keys" on the host will be copied to the VM template image during the setup. 
+So you may be able to ssh using public key authentication. 
+
+
+### How to stop VM. 
+
+You can stop a vm either by the "poweroff" command inside the VM or sending shutdown sequence through the monitor socket. 
+
+poweroff:
+```
+root@jessie64:~# ssh v001
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Wed Oct 28 03:07:58 2015
+root@v001:~# poweroff 
+Connection to v001 closed by remote host.
+Connection to v001 closed.
+```
+
+Through monitor socket:
+```
+root@jessie64:~# /kvm/sbin/kvm  shutdown  v001 
+QEMU 2.4.0.1 monitor - type 'help' for more information
+(qemu) system_powerdown
+(qemu) 
+root@jessie64:~# 
 ```
 
