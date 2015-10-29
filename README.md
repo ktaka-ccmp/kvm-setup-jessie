@@ -1,10 +1,10 @@
 # kvm-setup-jessie
 
 ## What is this?
-This is a setup tool for Debian jessie kvm guest VMs on a Debian jessie host.
-While there are libvirt compatible tools for debian, I prefere to run kvm a guest VM using qemu comandline for simplicity.
+This is a setup tool for Debian jessie kvm guest virtual machines(VMs) on a Debian jessie host.
+While there are libvirt compatible tools for debian, I prefere to run kvm a guest VM using simple qemu comandline.
 I compile guest kernel, qemu, prepare initrd, debootstrap root file system, and run the qemu program.
-That's it. All you need to run a kvm VM is just to run the single qemu program with appropriate command line options. It's that simple.
+That's it. All you need to run a kvm VM guest is just to run the single qemu program with appropriate command line options. It's that simple.
 
 So here is the setup tool for that purpose.
 
@@ -18,16 +18,16 @@ git clone git@github.com:ktaka-ccmp/kvm-setup-jessie.git
 sudo make all 
 ```
 
-Above will install needed tools to run kvm VMs in /kvm directory. Here are short description of purposes of /kvm/ subdirectories.
+Above will install needed tools to run kvm VMs in /kvm directory. Here are short description of what the subdirectories of /kvm/ look like.
 
 ```
 /kvm/
-|-- SRC          directory for download and compilation.
+|-- SRC          directory for source download and compilation.
 |-- boot         directory for guest kernels.
 |-- console      directory for guest console sockets.
 |-- data         directory for VM images.
 |-- etc          directory for guest networks setup scripts.
-|-- mnt          mount point for VM image manupiration.
+|-- mnt          mount point for VM image manipulation.
 |-- monitor      directory for guest monitor sockets.
 |-- qemu         qemu install directory.
 `-- sbin         kvm script directory.
@@ -46,7 +46,7 @@ booting v001 ....
 
 You can access v001 both by connecting to console socket(UNIX domain socket) or by ssh to the host.
 
-Socket connection:
+Console connection through socket:
 ```
 # /kvm/sbin/kvm  con v001 
 
@@ -67,7 +67,7 @@ root@v001:~#
 root@jessie64:~# 
 ```
 The default ID/pass for vm guest console is root/root. 
-The escape sequence for socket connection is "Ctrl+]". See /kvm/sbin/kvm .
+The escape sequence for socket connection is "Ctrl+]". See the "/kvm/sbin/kvm" script.
 
 SSH:
 ```
@@ -84,12 +84,22 @@ root@v001:~#
 ```
 
 The "/root/.ssh/authorized_keys" on the host will be copied to the VM template image during the setup. 
-So you may be able to ssh using public key authentication. 
+So you may be able to ssh using public key authentication. Otherwise, you need to first enable password authentication in /etc/ssh/sshd_config through console login session.
 
+A fixed IP addresse is assigned to a VM. The lines like the following will be added to /etc/hosts during
+the setup.  
+
+```
+172.16.1.1	v001
+172.16.1.2	v002
+.
+172.16.1.249	v249
+172.16.1.250	v250
+```
 
 ### How to stop VM. 
 
-You can stop a vm either by the "poweroff" command inside the VM or sending shutdown sequence through the monitor socket. 
+You can stop a VM either by the "poweroff" command inside the VM or sending shutdown sequence through the monitor socket. 
 
 poweroff:
 ```
@@ -107,7 +117,7 @@ Connection to v001 closed by remote host.
 Connection to v001 closed.
 ```
 
-Through monitor socket:
+Through the monitor socket:
 ```
 root@jessie64:~# /kvm/sbin/kvm  shutdown  v001 
 QEMU 2.4.0.1 monitor - type 'help' for more information
@@ -116,7 +126,9 @@ QEMU 2.4.0.1 monitor - type 'help' for more information
 root@jessie64:~# 
 ```
 
-### SHow running VMs.
+### How to show available VMs.
+
+The "/kvm/sbin/kvm list" command will do it.
 
 ```
 root@jessie64:~# /kvm/sbin/kvm  list
@@ -135,14 +147,26 @@ Hence the VM is running.
 You can destroy VM by removing the image file after properly shutdown the VM.
 
 ```
-root@jessie64:~# lsof /kvm/data/v001.img
+root@jessie64:~# kvm shutdown v001
+QEMU 2.4.0.1 monitor - type 'help' for more information
+(qemu) system_powerdown
+(qemu) 
+root@jessie64:~# kvm list 
+id 	con 	mon 	img
+test	-	-	 -
+v001	-	-	 -
+```
+
+```
 root@jessie64:~# rm  /kvm/data/v001.img
 ```
 
 ## Memory and CPU configuration.
 
-The default value for memory and the number of cpus are 1Gbyte and 2, respectly.
+The default value for memory and the number of cpus are 1Gbyte and 2, respectively.
 One can override these by setting the "mem" and "smp" environment variable.
+
+Here examples of the default VM and the one with 4Gbyte memory and 4 cpus. 
 
 ```
 root@jessie64:~# /kvm/sbin/kvm create v001
@@ -163,3 +187,4 @@ physical id     : 1
 physical id     : 2
 physical id     : 3
 ```
+
