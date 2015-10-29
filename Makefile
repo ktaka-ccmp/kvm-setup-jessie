@@ -93,21 +93,23 @@ kernel: ${SRC_DIR}/${KERNEL}/.config installkernel
 	ARCH=x86_64 nice -n 10 make -C ${SRC_DIR}/${KERNEL} -j20
 	ARCH=x86_64 make -C ${SRC_DIR}/${KERNEL} install INSTALL_PATH=${TOP_DIR}/boot/
 	(cd ${TOP_DIR}/boot/ ; ln -sf $(subst linux,vmlinuz,${KERNEL})${KVER_MINOR} vmlinuz )
-	(cp ${SRC_DIR}/${KERNEL}/.config files/dot.config ; touch ${SRC_DIR}/${KERNEL}/.config)
+	(cp ${SRC_DIR}/${KERNEL}/.config files/dot.config.kernel ; touch ${SRC_DIR}/${KERNEL}/.config)
 	ARCH=x86_64 make -C ${SRC_DIR}/${KERNEL} modules_install INSTALL_MOD_PATH=${SRC_DIR}
 	LD_LIBRARY_PATH=${SRC_DIR} depmod -a -b ${SRC_DIR} ${KVER}${KVER_MINOR}
 	(cd ${SRC_DIR}; tar cf - lib/modules/${KVER}${KVER_MINOR}) | gzip > ${TOP_DIR}/boot/modules.tgz
 
-${SRC_DIR}/${KERNEL}/.config: files/dot.config
+.PHONY: ${SRC_DIR}/${KERNEL}/.config
+${SRC_DIR}/${KERNEL}/.config: files/dot.config.kernel
 	if [ ! -d ${SRC_DIR}/${KERNEL} ]; then \
 	(wget -c ${KERNEL_URI} ;\
 	tar xf ${KERNEL_FILE} -C ${SRC_DIR}; rm ${KERNEL_FILE}) ; fi
-	sed -e 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"${KVER_MINOR}\"/g' files/dot.config > ${SRC_DIR}/${KERNEL}/.config
+	sed -e 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"${KVER_MINOR}\"/g' files/dot.config.kernel > ${SRC_DIR}/${KERNEL}/.config
 	ARCH=x86_64 make -C ${SRC_DIR}/${KERNEL} menuconfig
 	(cd ${SRC_DIR}/${KERNEL}/; cp -v  .config .config.tmp ;\
 	sed -e 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=\"${KVER_MINOR}\"/g' .config.tmp > .config ;\
 	rm .config.tmp )
-	(cp ${SRC_DIR}/${KERNEL}/.config files/dot.config ; touch ${SRC_DIR}/${KERNEL}/.config)
+	cp ${SRC_DIR}/${KERNEL}/.config files/dot.config.kernel
+#	(cp ${SRC_DIR}/${KERNEL}/.config files/dot.config.kernel ; touch ${SRC_DIR}/${KERNEL}/.config)
 
 .PHONY: installkernel
 installkernel: 
@@ -128,6 +130,7 @@ qemu:
 .PHONY: busybox
 busybox: ${SRC_DIR}/${BUSYBOX}/_install
 
+.PHONY: ${SRC_DIR}/${BUSYBOX}/_install
 ${SRC_DIR}/${BUSYBOX}/_install: 
 	if [ ! -d ${SRC_DIR}/${BUSYBOX} ]; then \
 	wget -c ${BUSYBOX_URI} ; \
