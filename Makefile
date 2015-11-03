@@ -74,6 +74,8 @@ prep:
 	time \
 	libattr1-dev \
 	libcap-dev \
+	flex \
+	bison \
 	
 
 .PHONY: initrd
