@@ -119,8 +119,10 @@ installkernel:
 .PHONY: qemu
 qemu: 
 	if [ ! -d ${SRC_DIR}/${QEMU} ]; then \
-	(wget -c ${QEMU_URI} ; \
-	tar xf ${QEMU_FILE} -C ${SRC_DIR}; rm ${QEMU_FILE}) ; fi
+	wget -c ${QEMU_URI} ; \
+	tar xf ${QEMU_FILE} -C ${SRC_DIR}; rm ${QEMU_FILE} ; \
+	cp files/patch.qemu01 ${SRC_DIR}/${QEMU}/ ;\
+	(cd ${SRC_DIR}/${QEMU}; patch -p0 <patch.qemu01 ); fi
 	(cd ${SRC_DIR}/${QEMU}; \
 	./configure --prefix=${TOP_DIR}/qemu/${QEMU}/ --enable-kvm --enable-virtfs --target-list=x86_64-softmmu ; \
 	time make -j 20 install ;\
