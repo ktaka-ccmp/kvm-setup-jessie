@@ -175,6 +175,8 @@ template:
 template-modify: hosts
 	if [ -f ${TOP_DIR}/data/${TEMPLATE} ]; then \
 	mount -o loop ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/mnt/tmp/ ; \
+	cp ${TOP_DIR}/mnt/tmp/usr/share/zoneinfo/Japan ${TOP_DIR}/mnt/tmp/etc/localtime ; \
+	echo "Asia/Tokyo" > ${TOP_DIR}/mnt/tmp/etc/timezone ; \
 	if [ -f /root/.ssh/authorized_keys ]; then \
 	mkdir -p ${TOP_DIR}/mnt/tmp/root/.ssh && chmod 700 ${TOP_DIR}/mnt/tmp/root/ && cp ~/.ssh/authorized_keys ${TOP_DIR}/mnt/tmp/root/.ssh/ ;\
 	fi ; \
