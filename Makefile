@@ -2,7 +2,7 @@
 TOP_DIR=/kvm
 SRC_DIR=${TOP_DIR}/SRC/
 
-KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v4.x/linux-4.2.4.tar.xz
+KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v4.x/linux-4.2.5.tar.xz
 KERNEL_FILE=$(notdir ${KERNEL_URI})
 KERNEL=$(KERNEL_FILE:.tar.xz=)
 KVER=$(subst linux-,,${KERNEL})
@@ -165,7 +165,7 @@ template:
 	mkfs.ext4 ${TOP_DIR}/data/${TEMPLATE} ; \
 	mkdir -p ${TOP_DIR}/mnt/tmp ; \
 	mount -o loop ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/mnt/tmp/ ; \
-	debootstrap --include=openssh-server,openssh-client,rsync,pciutils,tcpdump,strace,libpam-systemd jessie ${TOP_DIR}/mnt/tmp/ http://ftp.jp.debian.org/debian ; \
+	debootstrap --include=openssh-server,openssh-client,rsync,pciutils,tcpdump,strace,libpam-systemd,ca-certificates,telnet,curl jessie ${TOP_DIR}/mnt/tmp/ http://ftp.jp.debian.org/debian ; \
 	echo "root:root" | chpasswd --root ${TOP_DIR}/mnt/tmp/ ; \
 	apt-get -o RootDir=${TOP_DIR}/mnt/tmp/ clean ;\
 	umount ${TOP_DIR}/mnt/tmp ;\
