@@ -178,6 +178,7 @@ template-modify: hosts
 	fi ; \
 	cp /etc/hosts ${TOP_DIR}/mnt/tmp/etc/ ;\
 	cp files/dot.profile ${TOP_DIR}/mnt/tmp/root/.profile ;\
+	cp files/dot.sshconfig ${TOP_DIR}/mnt/tmp/root/.ssh/config ;\
 	umount ${TOP_DIR}/mnt/tmp ;\
 	fi
 	cp ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/data/test.img
