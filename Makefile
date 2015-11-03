@@ -140,7 +140,7 @@ ${SRC_DIR}/${BUSYBOX}/_install:
 	(cd ${SRC_DIR}/${BUSYBOX} ; \
 	make menuconfig ; \
 	time make -j 20 install )
-	cp ${SRC_DIR}/${BUSYBOX}/.config files/dot.config.busybox 
+	egrep -v "^#" ${SRC_DIR}/${BUSYBOX}/.config > files/dot.config.busybox 
 
 .PHONY: files
 files:
