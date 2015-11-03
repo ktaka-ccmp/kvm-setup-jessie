@@ -42,7 +42,6 @@ all:
 	make files
 	make template
 	make template-modify
-	make hosts
 
 .PHONY: all kernel  
 
@@ -154,6 +153,7 @@ files:
 	fi
 	cp files/qemu-ifup ${TOP_DIR}/etc/
 
+.PHONY: hosts
 hosts:
 	bash files/hosts_gen.sh
 
@@ -170,13 +170,14 @@ template:
 	fi
 	cp ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/data/test.img
 
-template-modify:
+template-modify: hosts
 	if [ -f ${TOP_DIR}/data/${TEMPLATE} ]; then \
 	mount -o loop ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/mnt/tmp/ ; \
 	if [ -f /root/.ssh/authorized_keys ]; then \
 	mkdir -p ${TOP_DIR}/mnt/tmp/root/.ssh && chmod 700 ${TOP_DIR}/mnt/tmp/root/ && cp ~/.ssh/authorized_keys ${TOP_DIR}/mnt/tmp/root/.ssh/ ;\
-	cp /etc/hosts ${TOP_DIR}/mnt/tmp/etc/ ;\
 	fi ; \
+	cp /etc/hosts ${TOP_DIR}/mnt/tmp/etc/ ;\
+	cp files/dot.profile ${TOP_DIR}/mnt/tmp/root/.profile ;\
 	umount ${TOP_DIR}/mnt/tmp ;\
 	fi
 	cp ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/data/test.img
