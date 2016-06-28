@@ -2,17 +2,17 @@
 TOP_DIR=/kvm
 SRC_DIR=${TOP_DIR}/SRC/
 
-KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v4.x/linux-4.2.5.tar.xz
+KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v4.x/linux-4.6.3.tar.xz
 KERNEL_FILE=$(notdir ${KERNEL_URI})
 KERNEL=$(KERNEL_FILE:.tar.xz=)
 KVER=$(subst linux-,,${KERNEL})
 KVER_MINOR=-64kvmg01
 
-BUSYBOX_URI=http://busybox.net/downloads/busybox-1.23.2.tar.bz2
+BUSYBOX_URI=http://busybox.net/downloads/busybox-1.24.2.tar.bz2
 BUSYBOX_FILE=$(notdir ${BUSYBOX_URI})
 BUSYBOX=$(BUSYBOX_FILE:.tar.bz2=)
 
-QEMU_URI=http://wiki.qemu-project.org/download/qemu-2.4.0.1.tar.bz2
+QEMU_URI=http://wiki.qemu-project.org/download/qemu-2.6.0.tar.bz2
 QEMU_FILE=$(notdir ${QEMU_URI})
 QEMU=$(QEMU_FILE:.tar.bz2=)
 
@@ -115,7 +115,7 @@ ${SRC_DIR}/${KERNEL}/.config: files/dot.config.kernel
 .PHONY: installkernel
 installkernel: 
 	mkdir -p ~/bin/
-	egrep -v "run-parts --verbose|/etc/kernel/postinst.d" /sbin/installkernel > ~/bin/installkernel
+	sed -e  "s/run-parts --verbose.*//g" -e "s/\/etc\/kernel\/postinst.d//g" /sbin/installkernel > ~/bin/installkernel
 	chmod +x ~/bin/installkernel
 
 .PHONY: qemu
@@ -142,7 +142,7 @@ ${SRC_DIR}/${BUSYBOX}/_install:
 	(cd ${SRC_DIR}/${BUSYBOX} ; \
 	make menuconfig ; \
 	time make -j 20 install )
-	egrep -v "^#" ${SRC_DIR}/${BUSYBOX}/.config > files/dot.config.busybox 
+	egrep  "CONF|^$$" ${SRC_DIR}/${BUSYBOX}/.config > files/dot.config.busybox 
 
 .PHONY: files
 files:
@@ -179,7 +179,7 @@ template-modify: hosts
 	mount -o loop ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/mnt/tmp/ ; \
 	cp ${TOP_DIR}/mnt/tmp/usr/share/zoneinfo/Japan ${TOP_DIR}/mnt/tmp/etc/localtime ; \
 	echo "Asia/Tokyo" > ${TOP_DIR}/mnt/tmp/etc/timezone ; \
-	if [ -f /root/.ssh/authorized_keys ]; then \
+	if [ -f ~/.ssh/authorized_keys ]; then \
 	mkdir -p ${TOP_DIR}/mnt/tmp/root/.ssh && chmod 700 ${TOP_DIR}/mnt/tmp/root/ && cp ~/.ssh/authorized_keys ${TOP_DIR}/mnt/tmp/root/.ssh/ ;\
 	fi ; \
 	cp /etc/hosts ${TOP_DIR}/mnt/tmp/etc/ ;\

@@ -57,7 +57,7 @@ case "$smp" in
 esac
 
 KVM=/kvm
-qemu_bin=$KVM/qemu/qemu-2.4.0.1/bin
+qemu_bin=$KVM/qemu/qemu-2.6.0/bin
 qemu=$qemu_bin/qemu-system-x86_64
 #kernel=$KVM/boot/vmlinuz-4.2.3-64kvmg01
 kernel=$KVM/boot/vmlinuz
