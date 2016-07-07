@@ -76,7 +76,6 @@ prep:
 	libcap-dev \
 	flex \
 	bison \
-	ncurses-term \
 	
 
 .PHONY: initrd
