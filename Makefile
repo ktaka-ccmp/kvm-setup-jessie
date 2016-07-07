@@ -76,6 +76,7 @@ prep:
 	libcap-dev \
 	flex \
 	bison \
+	ncurses-term \
 	
 
 .PHONY: initrd
@@ -163,7 +164,7 @@ hosts:
 
 template: 
 	if [ ! -f ${TOP_DIR}/data/${TEMPLATE} ]; then \
-	dd if=/dev/zero of=${TOP_DIR}/data/${TEMPLATE} bs=1024 seek=9999999 count=1 ; \
+	dd if=/dev/zero of=${TOP_DIR}/data/${TEMPLATE} bs=1024 seek=29999999 count=1 ; \
 	mkfs.ext4 ${TOP_DIR}/data/${TEMPLATE} ; \
 	mkdir -p ${TOP_DIR}/mnt/tmp ; \
 	mount -o loop ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/mnt/tmp/ ; \
