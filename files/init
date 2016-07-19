@@ -4,7 +4,8 @@ if [ "$root" == "" ]; then
 	root=/dev/vda
 fi
 
-mount -t proc none /proc
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
 mount -t devtmpfs none /dev
 
 echo "Mounting $root on /sysroot"
@@ -14,6 +15,8 @@ mount -t 9p -o trans=virtio,ro kvmboot /sysroot/boot
 mkdir /sysroot/lib/modules
 mount -t tmpfs none /sysroot/lib/modules
 tar xvf /sysroot/boot/modules.tgz -C /sysroot/
+
+umount /sysroot/boot
 
 echo $ID > /sysroot/etc/hostname
 echo $HOST > /sysroot/etc/kvmhost
@@ -63,8 +66,10 @@ if [ "$init" == "" ]; then
 fi
 
 umount /proc
+umount /sys
 umount /dev
-mount -t proc none /sysroot/proc
+mount -t proc proc /sysroot/proc
+mount -t sysfs sysfs /sysroot/sys
 mount -t devtmpfs none /sysroot/dev
 
 exec switch_root -c /dev/console /sysroot $init

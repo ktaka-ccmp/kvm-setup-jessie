@@ -88,6 +88,8 @@ initrd_dir: ${SRC_DIR}/${BUSYBOX}/_install
 	rsync -a --delete ${SRC_DIR}/${BUSYBOX}/_install/ ${SRC_DIR}/initrd_dir/
 	mkdir -p ${SRC_DIR}/initrd_dir/sysroot
 	mkdir -p ${SRC_DIR}/initrd_dir/proc
+	mkdir -p ${SRC_DIR}/initrd_dir/sys
+	mkdir -p ${SRC_DIR}/initrd_dir/dev
 	cp files/init ${SRC_DIR}/initrd_dir/
 
 kernel: ${SRC_DIR}/${KERNEL}/.config installkernel
