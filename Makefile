@@ -2,7 +2,7 @@
 TOP_DIR=/kvm
 SRC_DIR=${TOP_DIR}/SRC/
 
-KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v4.x/linux-4.5.7.tar.xz
+KERNEL_URI=http://www.kernel.org/pub/linux/kernel/v4.x/linux-4.7.3.tar.xz
 KERNEL_FILE=$(notdir ${KERNEL_URI})
 KERNEL=$(KERNEL_FILE:.tar.xz=)
 KVER=$(subst linux-,,${KERNEL})
@@ -12,7 +12,7 @@ BUSYBOX_URI=http://busybox.net/downloads/busybox-1.25.0.tar.bz2
 BUSYBOX_FILE=$(notdir ${BUSYBOX_URI})
 BUSYBOX=$(BUSYBOX_FILE:.tar.bz2=)
 
-QEMU_URI=http://wiki.qemu-project.org/download/qemu-2.6.0.tar.bz2
+QEMU_URI=http://wiki.qemu-project.org/download/qemu-2.7.0.tar.bz2
 QEMU_FILE=$(notdir ${QEMU_URI})
 QEMU=$(QEMU_FILE:.tar.bz2=)
 
@@ -57,25 +57,20 @@ prep:
 	ca-certificates \
 	libncurses5-dev \
 	xz-utils \
-	bc \
-	gcc \
-	git \
-	bzip2 \
-	g++ \
+	bc gcc git bzip2 g++ \
 	libtool \
 	pkg-config \
 	zlib1g-dev \
 	libglib2.0-dev \
 	autoconf \
 	build-essential \
-	socat \
+	socat lsof time \
 	bridge-utils \
-	lsof \
-	time \
 	libattr1-dev \
 	libcap-dev \
-	flex \
-	bison \
+	flex bison \
+	debian-archive-keyring debian-keyring \
+
 	
 
 .PHONY: initrd
@@ -169,7 +164,11 @@ template:
 	mkfs.ext4 ${TOP_DIR}/data/${TEMPLATE} ; \
 	mkdir -p ${TOP_DIR}/mnt/tmp ; \
 	mount -o loop ${TOP_DIR}/data/${TEMPLATE} ${TOP_DIR}/mnt/tmp/ ; \
-	debootstrap --include=openssh-server,openssh-client,rsync,pciutils,tcpdump,strace,libpam-systemd,ca-certificates,telnet,curl,ncurses-term jessie ${TOP_DIR}/mnt/tmp/ http://ftp.jp.debian.org/debian ; \
+	debootstrap --include=openssh-server,openssh-client,rsync,pciutils,\
+	tcpdump,strace,libpam-systemd,ca-certificates,telnet,curl,ncurses-term,\
+	python,python2.7-dev,python-pip,tree,psmisc,\
+	gcc,libffi-dev,libssl-dev,git \
+	jessie ${TOP_DIR}/mnt/tmp/ http://ftp.jp.debian.org/debian ; \
 	echo "root:root" | chpasswd --root ${TOP_DIR}/mnt/tmp/ ; \
 	apt-get -o RootDir=${TOP_DIR}/mnt/tmp/ clean ;\
 	umount ${TOP_DIR}/mnt/tmp ;\
