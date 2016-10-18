@@ -24,15 +24,21 @@ echo $HOST > /sysroot/etc/kvmhost
 if [ -f /sysroot/etc/debian_version ]; then 
 
 cat <<EOF > /sysroot/etc/network/interfaces
-auto lo eth0
+auto lo cbr0
 iface lo inet loopback
 
-iface eth0 inet static
+iface cbr0 inet static
+        bridge_ports    eth0
+        bridge_stp      off
+        bridge_maxwait  2
         address 10.0.${IDNUM}.1
         netmask 255.255.0.0
         network 10.0.0.0
         broadcast 10.0.255.255
         gateway 10.0.255.254
+
+        pre-up /sbin/ip link set dev eth0 up
+#        up /sbin/ip link set promisc on dev cbr0
 
 source-directory /etc/network/interfaces.d
 
