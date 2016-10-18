@@ -6,8 +6,8 @@ hosts=/etc/hosts
 touch ./hosts.tmp
 
 for i in {1..250} ; do 
-	if ! egrep "10.0.$i.1"  $hosts > /dev/null ; then
-		echo -e "10.0.$i.1\tv$(printf %03d $i)" >> ./hosts.tmp
+	if ! egrep "10\.0\.$i\.0"  $hosts > /dev/null ; then
+		echo -e "10.0.$i.0\tv$(printf %03d $i)" >> ./hosts.tmp
 	fi
 done  
 

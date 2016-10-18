@@ -31,7 +31,7 @@ iface cbr0 inet static
         bridge_ports    eth0
         bridge_stp      off
         bridge_maxwait  2
-        address 10.0.${IDNUM}.1
+        address 10.0.${IDNUM}.0
         netmask 255.255.0.0
         network 10.0.0.0
         broadcast 10.0.255.255
@@ -48,7 +48,7 @@ elif [ -f /sysroot/etc/redhat-release ]; then
 
 cat <<EOF > /sysroot/etc/sysconfig/network-scripts/ifcfg-eth0
 DEVICE=eth0
-IPADDR=10.0.${IDNUM}.1
+IPADDR=10.0.${IDNUM}.0
 BROADCAST=10.0.255.255
 NETMASK=255.255.0.0
 GATEWAY=10.0.255.254
