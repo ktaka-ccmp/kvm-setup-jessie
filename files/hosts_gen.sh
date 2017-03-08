@@ -8,7 +8,7 @@ touch ./hosts.tmp
 for j in {1..3} ; do 
 for i in {1..250} ; do 
 	if ! egrep "172.16.$j.$i"  $hosts > /dev/null ; then
-		echo -e "172.16.$j.$i\tv$(printf %03d $i).$j" >> ./hosts.tmp
+		echo -e "172.16.$j.$i\tv$(printf %03d $i).k0$j" >> ./hosts.tmp
 	fi
 done  
 done
