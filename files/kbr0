@@ -3,7 +3,7 @@ iface kbr0 inet static
 	bridge_ports none
 	bridge_fd 0
 	bridge_maxwait 0
-	address 172.16.2.254
+	address 172.16.3.254
 	netmask 255.255.255.0
 	up /etc/network/masquerade.sh
 
