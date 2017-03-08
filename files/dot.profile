@@ -22,6 +22,6 @@ fi
 
 if [ -f "/etc/kvmhost" ]; then
 PS1='${debian_chroot:+($debian_chroot)}\u@\h.$(cat /etc/kvmhost):\w\$ '
+else
+PS1='${debian_chroot:+($debian_chroot)}\u@\H:\w\$ '
 fi
-
-
