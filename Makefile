@@ -167,7 +167,8 @@ template:
 	debootstrap --include=openssh-server,openssh-client,rsync,pciutils,\
 	tcpdump,strace,libpam-systemd,ca-certificates,telnet,curl,ncurses-term,\
 	python,python2.7-dev,python-pip,tree,psmisc,\
-	gcc,libffi-dev,libssl-dev,git \
+	bridge-utils,sudo,aptitude,ca-certificates,apt-transport-https,\
+	sudo,gcc,libffi-dev,libssl-dev,git \
 	jessie ${TOP_DIR}/mnt/tmp/ http://ftp.jp.debian.org/debian ; \
 	echo "root:root" | chpasswd --root ${TOP_DIR}/mnt/tmp/ ; \
 	apt-get -o RootDir=${TOP_DIR}/mnt/tmp/ clean ;\
