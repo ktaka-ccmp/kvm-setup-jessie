@@ -18,7 +18,9 @@ tar xvf /sysroot/boot/modules.tgz -C /sysroot/
 
 umount /sysroot/boot
 
-echo $ID.$HOST > /sysroot/etc/hostname
+echo $ID > /sysroot/etc/hostname
+echo $HOST > /sysroot/etc/kvmhost
+#echo $ID.$HOST > /sysroot/etc/hostname
 
 if [ -f /sysroot/etc/debian_version ]; then 
 
