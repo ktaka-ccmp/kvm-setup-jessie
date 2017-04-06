@@ -165,10 +165,8 @@ ln -s $qemu /kvm-$id
 -append "console=ttyS0,19200n8 ID=$id IDNUM=$id_num HOST=$(hostname) root=/dev/vda" \
 -rtc base=localtime \
 --enable-kvm \
--net nic,vlan=0,macaddr=$mac0,model=virtio \
--net tap,vlan=0,script=$ifup0,ifname=${id}_0 \
--net nic,vlan=1,macaddr=$mac1,model=virtio \
--net tap,vlan=1,script=$ifup1,ifname=${id}_1 \
+-device virtio-net-pci,netdev=dev1,mac=$mac0,id=net1,vectors=$((smp*2+2)),mq=on \
+-netdev tap,id=dev1,vhost=on,script=$ifup0,queues=$smp \
 -serial unix:${con},server,nowait \
 -monitor unix:${mon},server,nowait \
 -nographic -daemonize \
