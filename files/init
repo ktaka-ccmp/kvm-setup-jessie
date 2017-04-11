@@ -27,11 +27,11 @@ auto lo eth0
 iface lo inet loopback
 
 iface eth0 inet static
-        address 172.16.1.${IDNUM}
+        address 10.0.1.${IDNUM}
         netmask 255.255.255.0
-        network 172.16.1.0
-        broadcast       172.16.1.255
-        gateway 172.16.1.254
+        network 10.0.1.0
+        broadcast       10.0.1.255
+        gateway 10.0.1.254
 
 source-directory /etc/network/interfaces.d
 
@@ -41,11 +41,11 @@ elif [ -f /sysroot/etc/redhat-release ]; then
 
 cat <<EOF > /sysroot/etc/sysconfig/network-scripts/ifcfg-eth0
 DEVICE=eth0
-IPADDR=172.16.1.${IDNUM}
-BROADCAST=172.16.1.255
+IPADDR=10.0.1.${IDNUM}
+BROADCAST=10.0.1.255
 NETMASK=255.255.255.0
-GATEWAY=172.16.1.254
-NETWORK=172.16.1.0
+GATEWAY=10.0.1.254
+NETWORK=10.0.1.0
 BOOTPROTO=none
 ONBOOT=yes
 
